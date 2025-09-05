@@ -1,4 +1,4 @@
-# Automated Reporting Feature – System Design
+# Automated Reporting Feature
 ## Overview
 
 We are extending our product with an automated reporting feature. Users participating in clinical trials need to receive weekly PDF summaries that aggregate database records and related files (text, images). These reports are generated via a long-running background process and delivered via email.
@@ -49,7 +49,7 @@ In addition to the existing **Documents API**, the system includes **Subscriptio
 Create a new subscription.  
 
 **Request**
-{
+<pre>{
   "userId": "123456",
   "reportType": "weekly",
   "filters": {
@@ -57,85 +57,81 @@ Create a new subscription.
     "fileTypes": ["pdf", "jpg"]
   }
 }
-
+</pre>
 **Response**
-{
+<pre>{
   "subscriptionId": "abc123",
   "status": "active"
 }
-
-GET /api/subscriptions/{id}
+</pre>
 
 Retrieve subscription details.
-
-PATCH /api/subscriptions/{id}
-
+<pre> GET /api/subscriptions/{id} </pre>
 Update subscription preferences (e.g., frequency, filters).
-
-DELETE /api/subscriptions/{id}
-
+<pre>PATCH /api/subscriptions/{id}</pre>
 Unsubscribe a user and remove scheduled jobs.
+<pre>DELETE /api/subscriptions/{id}</pre>
 
 ## Flow Description
 
- 1. Subscription
+1. Subscription
 
-  -User clicks Subscribe.
+  - User clicks Subscribe.
 
-  -API validates permissions and saves subscription metadata.
+  - API validates permissions and saves subscription metadata.
 
- 2. Job Scheduling
+2. Job Scheduling
 
-  -A scheduler runs periodically.
+  - A scheduler runs periodically.
 
-  -It checks subscriptions due for execution (createdAt <= now) and pushes jobs to the Job Queue.
+  - It checks subscriptions due for execution (createdAt <= now) and pushes jobs to the Job Queue.
 
- 3. Workers & Queues
+3. Workers & Queues
 
-  -Fetch Worker: retrieves documents & files → pushes results to Aggregation Queue.
+  - Fetch Worker: retrieves documents & files → pushes results to Aggregation Queue.
 
-  -Aggregation Worker: aggregates tabular + file data → pushes results to Processing Queue.
+  - Aggregation Worker: aggregates tabular + file data → pushes results to Processing Queue.
 
-  -Image/PDF Worker: generates PDF reports, stores them in S3 → pushes results to Notification Queue.
+  - Image/PDF Worker: generates PDF reports, stores them in S3 → pushes results to Notification Queue.
 
-  -Notification Worker: generates a secure S3 link → calls Email Service → delivers report.
+  - Notification Worker: generates a secure S3 link → calls Email Service → delivers report.
 
- 4. Failure Handling
+4. Failure Handling
 
-  -Each queue is backed by a Dead Letter Queue (DLQ).
+  - Each queue is backed by a Dead Letter Queue (DLQ).
 
-  -Workers retry jobs automatically.
+  - Workers retry jobs automatically.
 
-  -Persistent failures go to DLQ for investigation without blocking the pipeline.
+  - Persistent failures go to DLQ for investigation without blocking the pipeline.
 
- 5. File–Metadata Consistency
+5. File–Metadata Consistency
 
-  -Files are uploaded to S3 first.
+  - Files are uploaded to S3 first.
 
-  -Metadata in NoSQL updated only after a successful upload.
+  - Metadata in NoSQL updated only after a successful upload.
 
-  -Background reconciliation jobs compare S3 vs DB for consistency.
+  - Background reconciliation jobs compare S3 vs DB for consistency.
 
 ## Best Practices Applied
 
- -Scalability: Independent workers, horizontal scaling based on queue depth.
+ - Scalability: Independent workers, horizontal scaling based on queue depth.
 
- -Reliability: DLQs, retries, idempotent job execution.
+ - Reliability: DLQs, retries, idempotent job execution.
 
- -Performance: Queues buffer workload, workers process asynchronously.
+ - Performance: Queues buffer workload, workers process asynchronously.
 
- -Security: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
+ - Security: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
 
- -Observability: Monitor queue depth, worker health, failure rates.
+ - Observability: Monitor queue depth, worker health, failure rates.
 
 ## Next Steps for Implementation
 
- -Define queue structure (separate SQS queues for fetch, aggregation, processing, notification).
+ - Define queue structure (separate SQS queues for fetch, aggregation, processing, notification).
 
- -Implement workers as stateless services (e.g., AWS Lambda, ECS, or Kubernetes Jobs).
+ - Implement workers as stateless services (e.g., AWS Lambda, ECS, or Kubernetes Jobs).
 
- -Add monitoring/alerting (CloudWatch, Prometheus, or ELK).
+ - Add monitoring/alerting (CloudWatch, Prometheus, or ELK).
 
- -Set up retention policies for S3 report files.
+ - Set up retention policies for S3 report files.
 
-Define retry policies and DLQ handling.
+ - Define retry policies and DLQ handling.
