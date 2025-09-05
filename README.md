@@ -41,9 +41,18 @@ You can visualize the system with a mind map.
 
 ## Extended API
 
-In addition to the existing **Documents API**, the system includes **Subscriptions API** endpoints.  
+In addition to the existing **Documents API**, the system provides a **Subscriptions API** for managing report subscriptions.
 
-### Subscriptions API
+### Subscriptions API Endpoints
+
+| Method | Endpoint                        | Description                                 |
+|--------|---------------------------------|---------------------------------------------|
+| POST   | `/api/subscriptions`            | Create a new subscription                   |
+| GET    | `/api/subscriptions/{id}`       | Retrieve subscription details               |
+| PATCH  | `/api/subscriptions/{id}`       | Update subscription preferences             |
+| DELETE | `/api/subscriptions/{id}`       | Unsubscribe a user and remove scheduled jobs|
+
+---
 
 #### POST /api/subscriptions
 Create a new subscription.  
@@ -65,12 +74,6 @@ Create a new subscription.
 }
 </pre>
 
-Retrieve subscription details.
-<pre> GET /api/subscriptions/{id} </pre>
-Update subscription preferences (e.g., frequency, filters).
-<pre>PATCH /api/subscriptions/{id}</pre>
-Unsubscribe a user and remove scheduled jobs.
-<pre>DELETE /api/subscriptions/{id}</pre>
 
 ## Flow Description
 
@@ -87,7 +90,7 @@ Unsubscribe a user and remove scheduled jobs.
   - For each eligible job, it pushes a message into a job queue (e.g., SQS, RabbitMQ) describing the work to be done (documents to aggregate, processing details).
 
 **3. Workers & Queues**
-  - A worker is subscribed to the queue.
+  - Every worker is subscribed to the queue.
   - **Fetch Worker**: retrieves documents & files → pushes results to Aggregation Queue.
   - **Aggregation Worker**: aggregates tabular + file data → pushes results to Processing Queue.
   - **Image/PDF Worker**: generates PDF reports, stores them in S3 → pushes results to Notification Queue.
@@ -107,11 +110,11 @@ Unsubscribe a user and remove scheduled jobs.
 
 ## Best Practices Applied
 
- - Scalability: Independent workers, horizontal scaling based on queue depth.
- - Reliability: DLQs, retries, idempotent job execution.
- - Performance: Queues buffer workload, workers process asynchronously.
- - Security: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
- - Observability: Monitor queue depth, worker health, failure rates.
+ - **Scalability**: Independent workers, horizontal scaling based on queue depth.
+ - **Reliability**: DLQs, retries, idempotent job execution.
+ - **Performance**: Queues buffer workload, workers process asynchronously.
+ - **Security**: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
+ - **Observability**: Monitor queue depth, worker health, failure rates.
 
 ## Next Steps for Implementation
 
