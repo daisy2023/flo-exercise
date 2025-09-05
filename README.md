@@ -27,12 +27,54 @@ The system is composed of several services responsible for subscription manageme
 
 ### MindMap
 
+You can visualize the system with a mind map.
+
 ![Mind map](./Automated%20Reporting%20mind%20map.jpg)
 
 ### High-Level Architecture
 
 ![High level architecture](./High%20Level%20architecture%20diagram.jpg)
 
+> The system is designed using queues and workers for scalability and reliability.  
+> Each worker type (Fetch, Aggregate, Process, Notify) has its own queue and DLQ (Dead Letter Queue) for failure handling.  
+
+
+## Extended API
+
+In addition to the existing **Documents API**, the system includes **Subscriptions API** endpoints.  
+
+### Subscriptions API
+
+#### POST /api/subscriptions
+Create a new subscription.  
+
+**Request**
+{
+  "userId": "123456",
+  "reportType": "weekly",
+  "filters": {
+    "dateRange": "last_week",
+    "fileTypes": ["pdf", "jpg"]
+  }
+}
+
+**Response**
+{
+  "subscriptionId": "abc123",
+  "status": "active"
+}
+
+GET /api/subscriptions/{id}
+
+Retrieve subscription details.
+
+PATCH /api/subscriptions/{id}
+
+Update subscription preferences (e.g., frequency, filters).
+
+DELETE /api/subscriptions/{id}
+
+Unsubscribe a user and remove scheduled jobs.
 
 ## Flow Description
 
