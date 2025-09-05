@@ -1,4 +1,4 @@
-#Automated Reporting Feature – System Design
+# Automated Reporting Feature – System Design
 ##Overview
 
 We are extending our product with an automated reporting feature. Users participating in clinical trials need to receive weekly PDF summaries that aggregate database records and related files (text, images). These reports are generated via a long-running background process and delivered via email.
