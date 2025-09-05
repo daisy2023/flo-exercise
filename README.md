@@ -13,13 +13,13 @@ The system is designed for a large user base and heavy usage, with reliability, 
 
 ## Assumptions
 
- -File data is stored in AWS S3, metadata in NoSQL (MongoDB).
+ - File data is stored in AWS S3, metadata in NoSQL (MongoDB).
 
- -Reports require complex data aggregation and image/PDF processing.
+ - Reports require complex data aggregation and image/PDF processing.
 
- -The system must handle tens of thousands of concurrent report jobs.
+ - The system must handle tens of thousands of concurrent report jobs.
 
- -Failures must not block processing → handled via retries + DLQs.
+ - Failures must not block processing → handled via retries + DLQs.
 
 ## Architecture
 
