@@ -74,64 +74,49 @@ Unsubscribe a user and remove scheduled jobs.
 
 ## Flow Description
 
-1. Subscription
+**1. Subscription**
 
-  - User clicks Subscribe.
+  - User clicks "Subscribe" button in frontend.
+  - API verifies user **permissions/rights**.
+  - If allowed, **subscription record** is saved in a database.
+  - A scheduled job is created with necessary metadata (user ID, report type, schedule info, etc...)
 
-  - API validates permissions and saves subscription metadata.
+**2. Job Scheduling**
 
-2. Job Scheduling
+  - A background service periodically scans for scheduled jobs whose createdAt or nextRun timestamp is due.
+  - For each eligible job, it pushes a message into a job queue (e.g., SQS, RabbitMQ) describing the work to be done (documents to aggregate, processing details).
 
-  - A scheduler runs periodically.
+**3. Workers & Queues**
+  - A worker is subscribed to the queue.
+  - **Fetch Worker**: retrieves documents & files → pushes results to Aggregation Queue.
+  - **Aggregation Worker**: aggregates tabular + file data → pushes results to Processing Queue.
+  - **Image/PDF Worker**: generates PDF reports, stores them in S3 → pushes results to Notification Queue.
+  - **Notification Worker**: generates a secure S3 link → calls Email Service → delivers report.
 
-  - It checks subscriptions due for execution (createdAt <= now) and pushes jobs to the Job Queue.
-
-3. Workers & Queues
-
-  - Fetch Worker: retrieves documents & files → pushes results to Aggregation Queue.
-
-  - Aggregation Worker: aggregates tabular + file data → pushes results to Processing Queue.
-
-  - Image/PDF Worker: generates PDF reports, stores them in S3 → pushes results to Notification Queue.
-
-  - Notification Worker: generates a secure S3 link → calls Email Service → delivers report.
-
-4. Failure Handling
+**4. Failure Handling**
 
   - Each queue is backed by a Dead Letter Queue (DLQ).
-
   - Workers retry jobs automatically.
-
   - Persistent failures go to DLQ for investigation without blocking the pipeline.
 
-5. File–Metadata Consistency
+**5. File–Metadata Consistency**
 
   - Files are uploaded to S3 first.
-
   - Metadata in NoSQL updated only after a successful upload.
-
   - Background reconciliation jobs compare S3 vs DB for consistency.
 
 ## Best Practices Applied
 
  - Scalability: Independent workers, horizontal scaling based on queue depth.
-
  - Reliability: DLQs, retries, idempotent job execution.
-
  - Performance: Queues buffer workload, workers process asynchronously.
-
  - Security: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
-
  - Observability: Monitor queue depth, worker health, failure rates.
 
 ## Next Steps for Implementation
 
  - Define queue structure (separate SQS queues for fetch, aggregation, processing, notification).
-
  - Implement workers as stateless services (e.g., AWS Lambda, ECS, or Kubernetes Jobs).
-
  - Add monitoring/alerting (CloudWatch, Prometheus, or ELK).
-
  - Set up retention policies for S3 report files.
-
  - Define retry policies and DLQ handling.
