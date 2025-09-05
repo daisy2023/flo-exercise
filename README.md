@@ -29,11 +29,11 @@ The system is composed of several services responsible for subscription manageme
 
 You can visualize the system with a mind map.
 
-![Mind map](./Automated%20Reporting%20mind%20map.jpg)
+![Mind map](docs/Automated%20Reporting%20mind%20map.jpg)
 
 ### High-Level Architecture
 
-![High level architecture](./High%20Level%20architecture%20diagram.jpg)
+![High level architecture](docs/High%20Level%20architecture%20diagram.jpg)
 
 > The system is designed using queues and workers for scalability and reliability.  
 > Each worker type (Fetch, Aggregate, Process, Notify) has its own queue and DLQ (Dead Letter Queue) for failure handling.  
