@@ -23,9 +23,8 @@ The system is designed for a large user base and heavy usage, with reliability, 
 
 ## Architecture
 
-The system is composed of several services responsible for subscription management, background job execution, file storage, and notifications.
-
-### MindMap
+Our automated reporting system follows a **microservices architecture** built around **event-driven** processing and **message queues**. The design prioritizes horizontal scalability, fault tolerance, and loose coupling between components to handle the demanding requirements of clinical trial reporting at scale.
+The architecture separates concerns into distinct layers: a **user-facing API layer** for subscription management, a **job orchestration layer** for scheduling and coordination, **specialized worker services** for data processing, and **shared infrastructure** services for storage and notifications. This separation allows each component to scale independently based on workload demands.
 
 You can visualize the system with a mind map.
 
@@ -74,8 +73,7 @@ flowchart TD
     J --> J_DLQ;
 ```
 
-> The system is designed using queues and workers for scalability and reliability.  
-> Each worker type (Fetch, Aggregate, Process, Notify) has its own queue and DLQ (Dead Letter Queue) for failure handling.  
+The system processes reports through a **multi-stage pipeline** where each stage can operate at different speeds and scales. Queue depths provide natural backpressure, and workers can be scaled up or down based on processing demands. This design ensures that even if one component experiences issues, the entire pipeline remains operational. 
 
 
 ## Extended API
