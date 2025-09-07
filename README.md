@@ -78,7 +78,7 @@ The system processes reports through a **multi-stage pipeline** where each stage
 
 ## Extended API
 
-In addition to the existing **Documents API**, the system provides a **Subscriptions API** for managing report subscriptions and **Jobs API**.
+In addition to the existing **Documents API**, the system provides a **Subscriptions API** for managing report subscriptions and **Jobs API** for job status updates.
 
 ### Subscriptions API Endpoints
 
