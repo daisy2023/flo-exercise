@@ -189,10 +189,10 @@ Create a new subscription.
 
  - Define queue structure (separate SQS queues for fetch, aggregation, processing, notification).
  - Implement workers as stateless services (e.g., AWS Lambda, ECS, or Kubernetes Jobs).
- - Extend API with `api/subscriptions` and `api/jobs`
- - Integrate email service (SendGrid)
+ - Extend API with `api/subscriptions` and `api/jobs`.
+ - Integrate email service (SendGrid).
  - Set up monitoring/alerting (CloudWatch, Prometheus, or ELK).
- - Define deployment and rollback procedures
+ - Define deployment and rollback procedures.
  - Load test pipeline under peak concurrency.
  - Set up S3 retention and cleanup policies.
  - Define retry policies and DLQ handling.
