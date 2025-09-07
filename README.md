@@ -78,7 +78,7 @@ The system processes reports through a **multi-stage pipeline** where each stage
 
 ## Extended API
 
-In addition to the existing **Documents API**, the system provides a **Subscriptions API** for managing report subscriptions.
+In addition to the existing **Documents API**, the system provides a **Subscriptions API** for managing report subscriptions and **Jobs API**.
 
 ### Subscriptions API Endpoints
 
@@ -95,7 +95,8 @@ In addition to the existing **Documents API**, the system provides a **Subscript
 Create a new subscription.  
 
 **Request**
-<pre>{
+```json
+{
   "userId": "123456",
   "reportType": "weekly",
   "filters": {
@@ -103,15 +104,35 @@ Create a new subscription.
     "fileTypes": ["pdf", "jpg"]
   }
 }
-</pre>
+```
 **Response**
-<pre>{
+```json
+{
   "subscriptionId": "abc123",
   "status": "active"
 }
-</pre>
+```
 
+### Jobs API Endpoints
 
+| Method | Endpoint                        | Description                                 |
+|--------|---------------------------------|---------------------------------------------|
+| GET    | `/api/jobs/{id}`                | Get current job status    |
+| Get    | `/api/subscriptions/{id}/jobs`  | List recent jobs for subscription           |
+
+---
+#### Job Status Response:
+```json
+{
+  "jobId": "job_789",
+  "subscriptionId": "abc123", 
+  "status": "completed", // pending, processing, completed, failed
+  "createdAt": "2025-01-15T10:00:00Z",
+  "completedAt": "2025-01-15T10:30:00Z",
+  "reportUrl": "https://s3.amazonaws.com/...", // only when completed
+  "error": null
+}
+```
 ## Flow Description
 
 **1. Subscription**
