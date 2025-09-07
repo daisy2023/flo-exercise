@@ -33,7 +33,46 @@ You can visualize the system with a mind map.
 
 ### High-Level Architecture
 
-![High level architecture](docs/High%20Level%20architecture%20diagram.jpg)
+```mermaid
+%%{init: {'theme': 'base'}}%%
+flowchart TD
+    A["Frontend UI"];
+    B["API: Subscription"];
+    C["Job scheduler or bg service"];
+
+    subgraph Q1["Fetch Queue"]
+        direction TB
+        F["Fetch Worker"] --> F_DLQ["DLQ"]
+    end
+
+    subgraph Q2["Aggregation Queue"]
+        direction TB
+        G["Aggregation Worker"] --> G_DLQ["DLQ"]
+    end
+
+    subgraph Q3["Image/PDF Queue"]
+        direction TB
+        H["Image/PDF Worker"] --> H_DLQ["DLQ"]
+    end
+
+    I["S3 (PDF store)"];
+    J["Notification Worker"];
+    K["Email Service"];
+    J_DLQ["DLQ for Notifications"]
+
+    %% Flow
+    A -->|"1. User subscribes (POST /subscriptions)"| B;
+    B -->|"2. Save subscription and schedule job"| C;
+    C -->|"3. Push to Fetch Queue"| Q1;
+
+    Q1 -->|"4. Results → Aggregation Queue"| Q2;
+    Q2 -->|"5. Results → Image/PDF Queue"| Q3;
+    Q3 -->|"6. Store in S3"| I;
+
+    I -->|"7. Pass link to notification service"| J;
+    J -->|"8. Send email"| K;
+    J --> J_DLQ;
+```
 
 > The system is designed using queues and workers for scalability and reliability.  
 > Each worker type (Fetch, Aggregate, Process, Notify) has its own queue and DLQ (Dead Letter Queue) for failure handling.  
