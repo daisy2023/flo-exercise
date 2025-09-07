@@ -86,7 +86,7 @@ Create a new subscription.
 
 **2. Job Scheduling**
 
-  - A background service periodically scans for scheduled jobs whose createdAt or nextRun timestamp is due.
+  - A background service periodically scans for scheduled jobs whose `createdAt` or `nextRun` timestamp is due.
   - For each eligible job, it pushes a message into a job queue (e.g., SQS, RabbitMQ) describing the work to be done (documents to aggregate, processing details).
 
 **3. Workers & Queues**
@@ -102,17 +102,28 @@ Create a new subscription.
   - Workers retry jobs automatically.
   - Persistent failures go to DLQ for investigation without blocking the pipeline.
 
-**5. File–Metadata Consistency**
+**5. File – Metadata Consistency**
 
   - Files are uploaded to S3 first.
   - Metadata in NoSQL updated only after a successful upload.
   - Background reconciliation jobs compare S3 vs DB for consistency.
 
+## Scalability & Performance
+
+| Technique     | Application Area                       |
+|---------------|----------------------------------------|
+| Batching      | Fetch multiple documents/files per job |
+| Parallelism   | Run multiple workers concurrently.     |
+| Autoscaling   | Scale workers based on queue depth.    |
+| Caching       | Cache shared data across reports.      |
+| Rate Limiting | Email delivery and S3 access           |
+
+
 ## Best Practices Applied
 
  - **Scalability**: Independent workers, horizontal scaling based on queue depth.
  - **Reliability**: DLQs, retries, idempotent job execution.
- - **Performance**: Queues buffer workload, workers process asynchronously.
+ - **Performance**: Queues buffer workload, workers' process asynchronously.
  - **Security**: Reports delivered via pre-signed S3 links + encrypted at rest and in transit.
  - **Observability**: Monitor queue depth, worker health, failure rates.
 
@@ -120,6 +131,9 @@ Create a new subscription.
 
  - Define queue structure (separate SQS queues for fetch, aggregation, processing, notification).
  - Implement workers as stateless services (e.g., AWS Lambda, ECS, or Kubernetes Jobs).
- - Add monitoring/alerting (CloudWatch, Prometheus, or ELK).
- - Set up retention policies for S3 report files.
+ - Extend API with `api/subscriptions`
+ - Integrate email service (SendGrid)
+ - Set up monitoring/alerting (CloudWatch, Prometheus, or ELK).
+ - Load test pipeline under peak concurrency.
+ - Set up S3 retention and cleanup policies.
  - Define retry policies and DLQ handling.
