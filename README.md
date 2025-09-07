@@ -58,7 +58,7 @@ flowchart TD
     I["S3 (PDF store)"];
     J["Notification Worker"];
     K["Email Service"];
-    J_DLQ["DLQ for Notifications"]
+    J_DLQ["DLQ"]
 
     %% Flow
     A -->|"1. User subscribes (POST /subscriptions)"| B;
